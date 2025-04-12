@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: Shennawy API
+  version: 1.0.0
+  description: API for managing apartments.
+
+paths:
+  /apartments:
+    post:
+      summary: Create an apartment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - location
+                - price
+                - number
+                - thumbnail
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                location:
+                  type: string
+                price:
+                  type: number
+                  minimum: 0
+                number:
+                  type: string
+                project:
+                  type: string
+                thumbnail:
+                  type: string
+                  format: uri
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+      responses:
+        "201":
+          description: Apartment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Apartment'
+        "422":
+          description: Validation error
+
+    get:
+      summary: Get apartments list
+      parameters:
+        - in: query
+          name: title
+          schema:
+            type: string
+        - in: query
+          name: number
+          schema:
+            type: string
+        - in: query
+          name: project
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: A list of apartments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Apartment'
+                  pagination:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+
+  /apartments/{id}:
+    get:
+      summary: Get apartment by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-f\\d]{24}$"
+          description: MongoDB ObjectId
+      responses:
+        "200":
+          description: Apartment found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Apartment'
+        "404":
+          description: Apartment not found
+
+components:
+  schemas:
+    Apartment:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        price:
+          type: number
+        number:
+          type: string
+        project:
+          type: string
+        thumbnail:
+          type: string
+          format: uri
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+        - title
+        - location
+        - price
+        - number
+        - thumbnail
